@@ -10,11 +10,11 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api'); //Este es un prefijo que se le añade a la url: http://localhost:3000/api/products
 
-  app.useGlobalPipes( 
-    new ValidationPipe({ 
-      whitelist: true, 
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
       forbidNonWhitelisted: true,
-    })
+    }),
   );
 
   app.enableCors({
@@ -24,14 +24,23 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-  .setTitle('Teslo RESTfull Api')
-  .setDescription('Teslo shop endpoints')
-  .setVersion('1.0')
-  .build();
-const documentFactory = () => SwaggerModule.createDocument(app, config);
-SwaggerModule.setup('api', app, documentFactory);
+    .setTitle('Teslo RESTfull Api')
+    .setDescription('Teslo shop endpoints')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        in: 'header',
+      },
+      'access-token', // nombre del security scheme
+    )
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
 
   await app.listen(process.env.PORT ?? 3000);
-  logger.log(`App running on port ${process.env.PORT}`)
+  logger.log(`App running on port ${process.env.PORT}`);
 }
 bootstrap();
